@@ -1,0 +1,57 @@
+﻿@model Rimango.Groups.ViewModels.GroupPartEditViewModel
+@{
+    Style.Include("https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.1/jsgrid.min.css").AtHead();
+    Style.Include("https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.1/jsgrid-theme.min.css").AtHead();
+    Script.Require("jQuery").AtHead();
+    Script.Include("https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.1/jsgrid.min.js").AtHead();
+    //Style.Include("SemanticUI.DropDown").AtHead();
+    //Script.Include("SemanticUI.DropDown").AtFoot();
+
+    var all = Html.Raw(Json.Encode(Model.AllPersons));
+    var inGroup = Html.Raw(Json.Encode(Model.PersonsInGroup));
+}
+
+
+
+<div id="jsGrid"></div>
+
+<input type="hidden" name="group_json" id="group_json"/>
+
+
+<script type="text/javascript" language="javascript">
+    var personsInGroup = @inGroup;
+
+    var allPersons = @all;
+
+    function UpdateJson(args) {
+        args.item.Id = args.item.Name;
+        args.grid.refresh();
+        var j = JSON.stringify(personsInGroup);
+        $("#group_json").val(j);
+    }
+
+
+    $("#jsGrid").jsGrid({
+        width: "100%",
+        height: "400px",
+
+        inserting: true,
+        editing: true,
+        sorting: true,
+        paging: true,
+
+        data: personsInGroup,
+
+        fields: [
+            { name: "Id", editing: false},
+            { name: "Name", type: "select", items: allPersons, valueField: "Id", textField: "Name", validate: "required" },
+            { name: "OrderNumber", type: "number", width: 150 },
+            { name: "Funktion", type: "text", width: 150 },
+            { name: "DisplayNameOnly", type: "checkbox", title: "Nur Name anzeigen", sorting: true },
+            { type: "control" }
+        ],
+        onItemDeleted: UpdateJson,
+        onItemInserted: UpdateJson,
+        onItemUpdated: UpdateJson
+    });
+</script>
